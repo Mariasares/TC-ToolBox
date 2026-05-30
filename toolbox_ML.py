@@ -37,4 +37,4 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
     # TODO: Implementar por ???
     pass
 
-# Puedes agregar aquí los nombres/esqueletos de las 4 funciones restantes siguiendo esta estructura...
+# Faltan los esquemas de las 4 funciones restantes siguiendo la misma estructura
