@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy.stats as stats
 from typing import List, Optional
 
 def describe_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -12,7 +15,7 @@ def describe_df(df: pd.DataFrame) -> pd.DataFrame:
     Retorna:
     pd.DataFrame: Un DataFrame con tipos, % nulos, valores únicos y cardinalidad por columna.
     """
-    # TODO: Validar que df sea un pd.DataFrame
+    # TODO: Desarrollador 1, Marta
     pass
 
 def tipifica_variables(df: pd.DataFrame, umbral_categoria: int, umbral_continua: float) -> pd.DataFrame:
@@ -28,7 +31,7 @@ def tipifica_variables(df: pd.DataFrame, umbral_categoria: int, umbral_continua:
     Retorna:
     pd.DataFrame: Un DataFrame con las columnas 'Variable' y 'Tipo_Sugerido'.
     """
-    # TODO: Validar tipos de entrada y umbrales
+    # TODO: Desarrollador 1, Marta
     pass
 
 def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float = 0.5) -> Optional[List[str]]:
@@ -43,25 +46,75 @@ def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: 
     Retorna:
     List[str] o None: Lista de features que superan el umbral, o None si hay errores.
     """
+    # TODO: Desarrollador 2, Claudia
     pass
 
-def plot_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float = 0.5, columns: List[str] = None) -> Optional[List[str]]:
+def plot_features_num_regression(
+    df: pd.DataFrame,
+    target_col: str = "",
+    columns: list = [],
+    umbral_corr: float = 0.0,
+    pvalue: Optional[float] = None
+) -> Optional[List[str]]:
     """
-    Grafica las variables numéricas correlacionadas con el target mediante pairplots o scatterplots.
-    
-    Nota: Debe llamar internamente a get_features_num_regression. Max 5 columnas por gráfico.
+    Pinta un pairplot de target_col junto con las columnas que cumplan los criterios 
+    de correlación. Si supera 5 columnas, divide en subplots de máximo 5.
+
+    Argumentos:
+        df (pd.DataFrame): DataFrame a analizar.
+        target_col (str): Columna objetivo numérica.
+        columns (list): Lista de columnas candidatas (vacía = todas las numéricas).
+        umbral_corr (float): Umbral de correlación en valor absoluto.
+        pvalue (float, opcional): Nivel de significación estadística.
+
+    Retorna:
+        List[str]: Lista de columnas finalmente representadas.
+        Retorna None si falla alguna comprobación de entrada.
     """
+    # TODO: Desarrollador 2, Claudia
     pass
 
-def get_features_cat_regression(df: pd.DataFrame, target_col: str, pvalue: float = 0.05) -> Optional[List[str]]:
+def get_features_cat_regression(
+    df: pd.DataFrame, 
+    target_col: str, 
+    pvalue: float = 0.05
+) -> Optional[List[str]]:
     """
-    Identifica variables categóricas estadísticamente significativas respecto a un target numérico
-    utilizando tests de hipótesis (T-Test/Mann-Whitney o ANOVA/Kruskal-Wallis).
+    Devuelve las columnas categóricas cuya relación con target_col sea significativa 
+    usando Mann-Whitney U (2 categorías) o ANOVA (>2 categorías).
+
+    Argumentos:
+        df (pd.DataFrame): DataFrame a analizar.
+        target_col (str): Columna objetivo numérica.
+        pvalue (float): Nivel de significación estadística (defecto 0.05).
+
+    Retorna:
+        List[str]: Lista de columnas categóricas estadísticamente significativas.
+        Retorna None si falla alguna comprobación de entrada.
     """
+    # TODO: Desarrollador 2/3 , Claudia y yo??
     pass
 
-def plot_features_cat_regression(df: pd.DataFrame, target_col: str, pvalue: float = 0.05, columns: List[str] = None) -> Optional[List[str]]:
+def plot_features_cat_regression(
+    df: pd.DataFrame,
+    target_col: str = "",
+    columns: list = [],
+    pvalue: float = 0.05,
+    with_individual_plot: bool = False
+) -> Optional[List[str]]:
     """
-    Grafica diagramas de caja (boxplots) para las variables categóricas significativas respecto al target.
+    Pinta histogramas agrupados de target_col por cada variable categórica seleccionada.
+
+    Argumentos:
+        df (pd.DataFrame): DataFrame a analizar.
+        target_col (str): Columna objetivo numérica.
+        columns (list): Lista de columnas candidatas (vacía = todas las categóricas).
+        pvalue (float): Nivel de significación estadística.
+        with_individual_plot (bool): False para un único plot con subplots, True para independientes.
+
+    Retorna:
+        List[str]: Lista de columnas categóricas finalmente representadas.
+        Retorna None si falla alguna comprobación de entrada.
     """
+    # TODO: Desarrollador 2/3, Claudia y yo??
     pass
