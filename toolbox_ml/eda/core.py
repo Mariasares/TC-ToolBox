@@ -4,64 +4,103 @@ from typing import List, Optional
 
 def describe_df(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Genera un resumen detallado de un DataFrame de pandas.
+    Genera un resumen estadístico descriptivo de un DataFrame.
     
     Argumentos:
-    df (pd.DataFrame): El DataFrame que se va a analizar.
-    
-    Retorna:
-    pd.DataFrame: Un DataFrame con tipos, % nulos, valores únicos y cardinalidad por columna.
-    """
-    # TODO: Validar que df sea un pd.DataFrame
-    pass
+        df (pd.DataFrame): DataFrame a analizar.
 
-def tipifica_variables(df: pd.DataFrame, umbral_categoria: int, umbral_continua: float) -> pd.DataFrame:
+    Retorna:
+        pd.DataFrame: DataFrame con una fila por columna del input y las
+        siguientes columnas: 'tipo', 'porcentaje_nulos', 'valores_unicos',
+        'porcentaje_cardinalidad'.
+        Retorna None si el input no es un DataFrame válido.
     """
-    Sugiere el tipo de variable (Binaria, Categórica, Numérica Continua o Numérica Discreta)
-    basándose en su cardinalidad y porcentaje de cardinalidad.
     
+    # Comprobación de que si es un DataFrame
+    if not isinstance(df, pd.DataFrame):
+        print("Error: el objeto proporcionado no es un DataFrame.")
+        return None
+
+    # Crear el DataFrame resultado
+    resultado = pd.DataFrame(index=df.columns)
+
+    # Tipo de dato
+    resultado["tipo"] = df.dtypes.astype(str)
+
+    # Porcentaje de nulos
+    resultado["porcentaje_nulos"] = (df.isna().mean() * 100).round(2)
+
+    # Valores únicos
+    resultado["valores_unicos"] = df.nunique()
+
+    # Porcentaje de cardinalidad
+    resultado["porcentaje_cardinalidad"] = ((df.nunique() / len(df)) * 100).round(2)
+
+
+    return resultado
+
+
+def tipifica_variables(df: pd.DataFrame, umbral_categorica: int, umbral_continua: float) -> pd.DataFrame:
+    """
+    Clasifica las variables de un DataFrame según su cardinalidad y porcentaje de cardinalidad.
+
     Argumentos:
-    df (pd.DataFrame): El DataFrame a analizar.
-    umbral_categoria (int): Límite de valores únicos para considerar una variable como categórica.
-    umbral_continua (float): Porcentaje de cardinalidad mínimo para considerar una variable como continua.
-    
+        df (pd.DataFrame): DataFrame a analizar.
+        umbral_categorica: Umbral para categorizar las variables categóricas
+        umbral_continua: Float
+
     Retorna:
-    pd.DataFrame: Un DataFrame con las columnas 'Variable' y 'Tipo_Sugerido'.
+        pd.DataFrame: DataFrame con dos columnas: 'nombre_variable', 'tipo_sugerido'
+        Retorna None si el input no es un DataFrame válido.
+        Retorna None si el umbral_categorica no es un tipo válido (int).
+        Retorna None si el umbral_continua no es un tipo válido (float)
     """
-    # TODO: Validar tipos de entrada y umbrales
-    pass
-
-def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float = 0.5) -> Optional[List[str]]:
-    """
-    Devuelve las columnas numéricas cuya correlación con el target supera un umbral absoluto.
     
-    Argumentos:
-    df (pd.DataFrame): El DataFrame de datos.
-    target_col (str): El nombre de la columna objetivo (numérica).
-    umbral_corr (float): Umbral de correlación de Pearson (entre 0 y 1).
+    # Comprobación de DataFrame
+    if not isinstance(df, pd.DataFrame):
+        print("Error: el objeto proporcionado no es un DataFrame.")
+        return None
     
-    Retorna:
-    List[str] o None: Lista de features que superan el umbral, o None si hay errores.
-    """
-    pass
+    # Comprobación umbral_categorica, debe ser entero positivo
+    if not isinstance(umbral_categorica, int) or umbral_categorica <= 0:
+        print("Error: umbral_categorica debe ser un entero positivo.")
+        return None
 
-def plot_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float = 0.5, columns: List[str] = None) -> Optional[List[str]]:
-    """
-    Grafica las variables numéricas correlacionadas con el target mediante pairplots o scatterplots.
+    # comprobación umbral_continua, debe ser float entre 0 y 100
+    if not isinstance(umbral_continua, float) or not (0 <= umbral_continua <= 100):
+        print("Error: umbral_continua debe ser un float entre 0 y 100.")
+        return None
     
-    Nota: Debe llamar internamente a get_features_num_regression. Max 5 columnas por gráfico.
-    """
-    pass
+    
+    # Cardinalidad y porcentaje_cardinalidad
+    cardinalidad = df.nunique()
+    porcentaje_cardinalidad = df.nunique() / len(df) * 100
 
-def get_features_cat_regression(df: pd.DataFrame, target_col: str, pvalue: float = 0.05) -> Optional[List[str]]:
-    """
-    Identifica variables categóricas estadísticamente significativas respecto a un target numérico
-    utilizando tests de hipótesis (T-Test/Mann-Whitney o ANOVA/Kruskal-Wallis).
-    """
-    pass
+    # Clasificación variables
+    tipos = []
 
-def plot_features_cat_regression(df: pd.DataFrame, target_col: str, pvalue: float = 0.05, columns: List[str] = None) -> Optional[List[str]]:
-    """
-    Grafica diagramas de caja (boxplots) para las variables categóricas significativas respecto al target.
-    """
-    pass
+    for col in df.columns:
+        card = cardinalidad[col]
+        pct = porcentaje_cardinalidad[col]
+
+        if card == 2:
+            tipo = "Binaria"
+
+        elif card < umbral_categorica:
+            tipo = "Categórica"
+
+        elif card >= umbral_categorica and pct >= umbral_continua:
+            tipo = "Numérica Continua"
+
+        else:
+            tipo = "Numérica Discreta"
+
+        tipos.append(tipo)
+    
+    # DF resultado
+    resultado = pd.DataFrame({
+        "nombre_variable": df.columns,
+        "tipo_sugerido": tipos
+    })
+
+    return resultado
