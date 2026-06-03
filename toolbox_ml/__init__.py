@@ -11,10 +11,10 @@ __version__ = "0.1.0"
 from .eda.core import (
     describe_df,
     tipifica_variables,
-    get_features_num_regression,
-    plot_features_num_regression,
-    get_features_cat_regression,
-    plot_features_cat_regression
+    # get_features_num_regression,
+    # plot_features_num_regression,
+    # get_features_cat_regression,
+    # plot_features_cat_regression
 )
 
 # Definimoas qué funciones se exportan públicamente
