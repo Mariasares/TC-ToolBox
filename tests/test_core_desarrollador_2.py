@@ -16,7 +16,7 @@ from toolbox_ml.eda.core import (
 
 @pytest.fixture
 def df_num():
-    """Tabla de juguete: 'y' es el target; 'x_buena' correlaciona, 'x_ruido' no."""
+    """Tabla de prueba: 'y' es el target; 'x_buena' correlaciona, 'x_ruido' no."""
     return pd.DataFrame({
         "y":       [1, 2, 3, 4, 5, 6],
         "x_buena": [2, 4, 6, 8, 10, 12],   # correlación perfecta con y
