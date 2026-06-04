@@ -1,9 +1,5 @@
 """
-toolbox_ml.eda.core
---------------------
-Funciones de feature selection para problemas de REGRESIÓN (target numérico).
-
-Autoría: Claudia (Desarrolladora 2)
+Claudia (Desarrolladora 2)
 Contiene:
     - get_features_num_regression   -> selecciona columnas NUMÉRICAS por correlación
     - plot_features_num_regression  -> pinta un pairplot de esas columnas
