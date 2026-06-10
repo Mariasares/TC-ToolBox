@@ -184,12 +184,14 @@ def test_plot_num_devuelve_lista(df_num):
     res = plot_features_num_regression(df_num, "y", umbral_corr=0.9)
     assert isinstance(res, list)
     assert "x_buena" in res
+    plt.close('all')  # <--- Añado para limpiar la memoria
 
 
 def test_plot_num_columns_vacia_usa_todas(df_num):
     """Caso límite: columns vacía -> usa todas las numéricas como candidatas."""
     res = plot_features_num_regression(df_num, "y", columns=[], umbral_corr=0.9)
     assert "x_buena" in res
+    plt.close('all')  # <--- Añado para limpiar la memoria
 
 
 def test_plot_num_caso_error(df_num):
@@ -197,6 +199,7 @@ def test_plot_num_caso_error(df_num):
     df = df_num.copy()
     df["texto"] = ["a", "b", "c", "d", "e", "f"]
     assert plot_features_num_regression(df, "texto", umbral_corr=0.5) is None
+    plt.close('all')  # <--- Añado para limpiar la memoria
 
 
 # ----------------------------- get_features_cat_regression -----------------------------
@@ -224,7 +227,7 @@ def test_plot_cat_devuelve_lista(df_cat):
     res = plot_features_cat_regression(df_cat, "precio", pvalue=0.05)
     assert isinstance(res, list)
     assert "clase" in res
-
+    plt.close('all')  # <--- Añado para limpiar la memoria
 
 def test_plot_cat_individual(df_cat):
     """Caso límite: with_individual_plot=True también funciona."""
@@ -236,3 +239,4 @@ def test_plot_cat_individual(df_cat):
 def test_plot_cat_caso_error(df_cat):
     """Caso de error: df inválido -> None."""
     assert plot_features_cat_regression("no es df", "precio") is None
+    plt.close('all')  # <--- Añado para limpiar la memoria
