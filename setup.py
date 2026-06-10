@@ -2,14 +2,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="toolbox_ml",
-    version="0.1.0",
+    name='toolbox_ml',
+    version='1.0.0',
     packages=find_packages(),
-    install_packages=[
-        "pandas",
-        "numpy",
-        "matplotlib",
-        "seaborn",
-        "scipy",
-    ],
+    install_requires=open('requirements.txt').read().splitlines()
 )
