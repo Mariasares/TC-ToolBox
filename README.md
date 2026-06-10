@@ -19,6 +19,23 @@ source venv/bin/activate  # En Windows usa: venv\Scripts\activate
 pip install -r requirements.txt
 pip install -e .
 ```
+## Estructura del repositorio
+```
+TC-ToolBox/
+├── .venv/                     # Entorno virtual de trabajo
+├── notebooks/                 # Espacio para pruebas y análisis
+│   └── demo.ipynb             # El cuaderno de demostración
+├── tests
+    ├── __init__.py            # Conmutador central y gestor de accesos
+    └── test_core.py           # Tests unitarios
+├── toolbox_ml/                # El paquete instalable del proyecto
+│   ├── __init__.py            # El conmutador central y gestor de accesos
+│   └── eda/                   # Módulo de Análisis Exploratorio
+│       └── core.py            # Archivo único con todas las funciones unificadas
+├── requirements.txt           # Listado oficial de dependencias
+└── setup.py                   # Configuradores de instalación
+```
+
 ## Funciones Principales (`toolbox_ml.eda.core`)
 
 La librería expone las siguientes funciones diseñadas para acelerar el pipeline de Data Science:
