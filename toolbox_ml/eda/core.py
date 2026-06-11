@@ -1,9 +1,3 @@
-"""
-Marta (Desarrolladora 1)
-Contiene:
-    - describe_df   ->  Resumen estadístico descriptivo persoalizado de un DF.
-    - tipifica_variables  ->  DataFrame con dos columnas: nombre de la variable y el tipo sugerido.
-"""
 
 import pandas as pd
 import numpy as np
@@ -11,6 +5,13 @@ from typing import List, Optional
 from scipy import stats
 from scipy.stats import chi2_contingency
 
+
+"""
+Marta (Desarrolladora 1)
+Contiene:
+    - describe_df   ->  Resumen estadístico descriptivo persoalizado de un DF.
+    - tipifica_variables  ->  DataFrame con dos columnas: nombre de la variable y el tipo sugerido.
+"""
 
 def describe_df(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -500,3 +501,101 @@ def detect_outliers(df: pd.DataFrame, method: str = 'iqr', threshold: float = No
         }
         
     return outliers_summary
+
+
+# FUNCIÓN 'get_features_num_classification' BONUS OPCIONAL Nº3
+
+def get_features_num_classification(df, target, pvalue_rango=0.05):
+    """
+    Selección de features numéricas relevantes para un modelo de 
+    clasificación usando el método estadístico ANOVA.
+
+    Parámetros:
+        - df : DataFrame
+        - target : str - Nombre de la columna objetivo.
+        - pvalue_rango : float - Umbral de significancia (default=0.05).
+
+    Retorna:
+    --------
+    features_num_sel : Lista de nombres de features numéricas seleccionadas.
+    """
+    # Separar X e y
+    y = df[target]
+    X = df.drop(columns=[target])
+
+    # Seleccionar solo columnas numéricas
+    features_num = X.select_dtypes(include=["int64", "float64"])
+
+    # Si no hay columnas numéricas retorna una lista vacía
+    if features_num.shape[1] == 0:
+        return []
+
+    # Creamos una lista vacía para que se guarden las features seleccionadas
+    features_num_sel = []
+
+    # Para cada columna numérica aplicamos el método y calculamos p_value
+    for col in features_num.columns:
+
+        # Crear lista de grupos: una lista por cada clase del target
+        grupos = [df[df[target] == clase][col].dropna() 
+                  for clase in df[target].unique()]
+
+        # Método ANOVA
+        f_val, p_val = stats.f_oneway(*grupos)
+
+        # Seleccionar si p < umbral, se rechaza la hipótesis nula (la variable es dependiente)
+        if p_val < pvalue_rango:
+            features_num_sel.append(col)
+
+    return features_num_sel
+
+
+
+
+# FUNCIÓN 'get_features_cat_classification' BONUS OPCIONAL Nº3
+
+def get_features_cat_classification(df, target, pvalue_rango=0.05):
+    """
+    Selección de features categórcias relevantes para un modelo de 
+    clasificación usando el método estadístico Chi-cuadrado.
+
+    Parámetros:
+        - df : DataFrame
+        - target : str - Nombre de la columna objetivo.
+        - pvalue_rango : float - Umbral de significancia (default=0.05).
+
+    Retorna:
+    --------
+    features_cat_sel : Lista de nombres de features numéricas seleccionadas.
+    """
+    # Separar X e y
+    y = df[target]
+    X = df.drop(columns=[target])
+
+    # Seleccionar solo columnas categóricas
+    features_cat = X.select_dtypes(include=["object", "category", "str"])
+
+    # Si no hay columnas numéricas retorna una lista vacía
+    if features_cat.shape[1] == 0:
+        return []
+
+    # Creamos una lista vacía para que se guarden las features seleccionadas
+    features_cat_sel = []
+
+    # Para cada columna cat aplicamos el método y calculamos p_value
+    for col in features_cat.columns:
+
+        # Crear tabla de contingencia
+        tabla_contingencia = pd.crosstab(df[col], df[target])
+
+        # Test Chi-cuadrado
+        chi2, p_val, dof, expected = chi2_contingency(tabla_contingencia)
+
+        # Seleccionar si p < umbral, se rechaza la hipótesis nula (la variable es dependiente)
+        if p_val < pvalue_rango:
+            features_cat_sel.append(col)
+
+    return features_cat_sel
+
+
+
