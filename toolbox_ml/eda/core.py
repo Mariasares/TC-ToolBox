@@ -3,15 +3,12 @@ import pandas as pd
 import numpy as np
 from typing import List, Optional
 from scipy import stats
-from scipy.stats import chi2_contingency
+from scipy.stats import chi2_contingency, pearsonr, mannwhitneyu, f_oneway
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
-"""
-Marta (Desarrolladora 1)
-Contiene:
-    - describe_df   ->  Resumen estadístico descriptivo persoalizado de un DF.
-    - tipifica_variables  ->  DataFrame con dos columnas: nombre de la variable y el tipo sugerido.
-"""
+# ----------------------------- describe_df -----------------------------
 
 def describe_df(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -49,6 +46,9 @@ def describe_df(df: pd.DataFrame) -> pd.DataFrame:
 
 
     return resultado
+
+
+# ----------------------------- tipifica_variables -----------------------------
 
 
 def tipifica_variables(df: pd.DataFrame, umbral_categorica: int, umbral_continua: float) -> pd.DataFrame:
@@ -116,18 +116,6 @@ def tipifica_variables(df: pd.DataFrame, umbral_categorica: int, umbral_continua
 
     return resultado
 
-"""
-Claudia (Desarrolladora 2)
-Contiene:
-    - get_features_num_regression   -> selecciona columnas NUMÉRICAS por correlación
-    - plot_features_num_regression  -> pinta un pairplot de esas columnas
-    - get_features_cat_regression   -> selecciona columnas CATEGÓRICAS por test estadístico
-    - plot_features_cat_regression  -> pinta histogramas del target por categoría
-"""
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import pearsonr, mannwhitneyu, f_oneway
 
 
 # ----------------------------------------------------------------------------- #
@@ -158,9 +146,9 @@ def _validar_num(df, target_col, umbral_corr, pvalue) -> bool:
     return True
 
 
-# ============================================================================= #
-#  1) get_features_num_regression
-# ============================================================================= #
+# ----------------------------- get_features_num_regression -----------------------------
+
+
 def get_features_num_regression(
     df: pd.DataFrame,
     target_col: str,
@@ -214,9 +202,9 @@ def get_features_num_regression(
     return resultado
 
 
-# ============================================================================= #
-#  2) plot_features_num_regression
-# ============================================================================= #
+# ----------------------------- plot_features_num_regression -----------------------------
+
+
 def plot_features_num_regression(
     df: pd.DataFrame,
     target_col: str = "",
@@ -280,6 +268,7 @@ def plot_features_num_regression(
 # ----------------------------------------------------------------------------- #
 #  Helper privado: comprobaciones comunes a las funciones categóricas.
 # ----------------------------------------------------------------------------- #
+
 def _validar_cat(df, target_col, pvalue) -> bool:
     if not isinstance(df, pd.DataFrame):
         print("Error: 'df' debe ser un pandas DataFrame.")
@@ -297,9 +286,9 @@ def _validar_cat(df, target_col, pvalue) -> bool:
     return True
 
 
-# ============================================================================= #
-#  3) get_features_cat_regression
-# ============================================================================= #
+# ----------------------------- get_features_cat_regression -----------------------------
+
+
 def get_features_cat_regression(
     df: pd.DataFrame,
     target_col: str,
@@ -356,9 +345,9 @@ def get_features_cat_regression(
     return resultado
 
 
-# ============================================================================= #
-#  4) plot_features_cat_regression
-# ============================================================================= #
+# ----------------------------- plot_features_cat_regression -----------------------------
+
+
 def plot_features_cat_regression(
     df: pd.DataFrame,
     target_col: str = "",
@@ -416,7 +405,9 @@ def plot_features_cat_regression(
 
     return seleccionadas
 
-# FUNCIÓN 'DETECT_OUTLIERS' BONUS OPCIONAL Nº1 
+
+# ----------------------------- detect_outliers -----------------------------
+
 
 def detect_outliers(df: pd.DataFrame, method: str = 'iqr', threshold: float = None) -> dict:
     """
@@ -503,7 +494,8 @@ def detect_outliers(df: pd.DataFrame, method: str = 'iqr', threshold: float = No
     return outliers_summary
 
 
-# FUNCIÓN 'get_features_num_classification' BONUS OPCIONAL Nº3
+# ----------------------------- get_features_num_classification -----------------------------
+
 
 def get_features_num_classification(df, target, pvalue_rango=0.05):
     """
@@ -550,9 +542,8 @@ def get_features_num_classification(df, target, pvalue_rango=0.05):
     return features_num_sel
 
 
+# ----------------------------- get_features_cat_classification -----------------------------
 
-
-# FUNCIÓN 'get_features_cat_classification' BONUS OPCIONAL Nº3
 
 def get_features_cat_classification(df, target, pvalue_rango=0.05):
     """
@@ -571,9 +562,11 @@ def get_features_cat_classification(df, target, pvalue_rango=0.05):
     # Separar X e y
     y = df[target]
     X = df.drop(columns=[target])
+    # Convertir columnas string (StringDtype) a object para evitar errores con SciPy
+    X = X.astype({col: "object" for col in X.select_dtypes(include="string").columns})
 
     # Seleccionar solo columnas categóricas
-    features_cat = X.select_dtypes(include=["object", "category", "str"])
+    features_cat = X.select_dtypes(include=["object", "category"])
 
     # Si no hay columnas numéricas retorna una lista vacía
     if features_cat.shape[1] == 0:
