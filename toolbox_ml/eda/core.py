@@ -415,106 +415,88 @@ def plot_features_cat_regression(
 
     return seleccionadas
 
+# FUNCIÓN 'DETECT_OUTLIERS' BONUS OPCIONAL Nº1 
 
-"""
-FUNCIONES BONUS
-Contiene:
-    - get_features_num_classification   -> selecciona columnas NUMÉRICAS por método ANOVA
-    - get_features_cat_classification   -> selecciona columnas CATEGÓRICAS por método Chi-cuadrado
-"""
-
-# ============================================================================= #
-#  #------------get_features_num_classification
-# ============================================================================= #
-
-
-def get_features_num_classification(df, target, pvalue_rango=0.05):
+def detect_outliers(df: pd.DataFrame, method: str = 'iqr', threshold: float = None) -> dict:
     """
-    Selección de features numéricas relevantes para un modelo de 
-    clasificación usando el método estadístico ANOVA.
-
-    Parámetros:
-        - df : DataFrame
-        - target : str - Nombre de la columna objetivo.
-        - pvalue_rango : float - Umbral de significancia (default=0.05).
-
+    Detecta valores atípicos (outliers) en las columnas numéricas de un DataFrame.
+    
+    Argumentos:
+        df (pd.DataFrame): El DataFrame que contiene los datos a analizar.
+        method (str): El método de detección; puede ser 'iqr' (Rango Intercuartílico) 
+                      o 'z_score' (Puntuación Z). Por defecto es 'iqr'.
+        threshold (float, opcional): El umbral para la detección. 
+                                     Si es 'iqr', por defecto multiplica por 1.5.
+                                     Si es 'z_score', por defecto busca valores fuera de +/- 3.0.
+                                     
     Retorna:
-    --------
-    features_num_sel : Lista de nombres de features numéricas seleccionadas.
+        dict: Un diccionario donde cada clave es el nombre de la columna numérica y el valor 
+              es otro diccionario con: 'count' (cantidad), 'percentage' (%) e 'indices' (lista de índices).
     """
-    # Separar X e y
-    y = df[target]
-    X = df.drop(columns=[target])
-
-    # Seleccionar solo columnas numéricas
-    features_num = X.select_dtypes(include=["int64", "float64"])
-
-    # Si no hay columnas numéricas retorna una lista vacía
-    if features_num.shape[1] == 0:
-        return []
-
-    # Creamos una lista vacía para que se guarden las features seleccionadas
-    features_num_sel = []
-
-    # Para cada columna numérica aplicamos el método y calculamos p_value
-    for col in features_num.columns:
-
-        # Crear lista de grupos: una lista por cada clase del target
-        grupos = [df[df[target] == clase][col].dropna() 
-                  for clase in df[target].unique()]
-
-        # Método ANOVA
-        f_val, p_val = stats.f_oneway(*grupos)
-
-        # Seleccionar si p < umbral, se rechaza la hipótesis nula (la variable es dependiente)
-        if p_val < pvalue_rango:
-            features_num_sel.append(col)
-
-    return features_num_sel
-
-# ============================================================================= #
-#  #------------get_features_cat_classification
-# ============================================================================= #
-
-def get_features_cat_classification(df, target, pvalue_rango=0.05):
-    """
-    Selección de features categórcias relevantes para un modelo de 
-    clasificación usando el método estadístico Chi-cuadrado.
-
-    Parámetros:
-        - df : DataFrame
-        - target : str - Nombre de la columna objetivo.
-        - pvalue_rango : float - Umbral de significancia (default=0.05).
-
-    Retorna:
-    --------
-    features_cat_sel : Lista de nombres de features numéricas seleccionadas.
-    """
-    # Separar X e y
-    y = df[target]
-    X = df.drop(columns=[target])
-
-    # Seleccionar solo columnas categóricas
-    features_cat = X.select_dtypes(include=["object", "category", "str"])
-
-    # Si no hay columnas numéricas retorna una lista vacía
-    if features_cat.shape[1] == 0:
-        return []
-
-    # Creamos una lista vacía para que se guarden las features seleccionadas
-    features_cat_sel = []
-
-    # Para cada columna cat aplicamos el método y calculamos p_value
-    for col in features_cat.columns:
-
-        # Crear tabla de contingencia
-        tabla_contingencia = pd.crosstab(df[col], df[target])
-
-        # Test Chi-cuadrado
-        chi2, p_val, dof, expected = chi2_contingency(tabla_contingencia)
-
-        # Seleccionar si p < umbral, se rechaza la hipótesis nula (la variable es dependiente)
-        if p_val < pvalue_rango:
-            features_cat_sel.append(col)
-
-    return features_cat_sel
+    # 1. Comprobaciones de entrada correctas
+    if not isinstance(df, pd.DataFrame):
+        print("El argumento 'df' debe ser un DataFrame.")
+        return {}
+        
+    method = method.lower()
+    if method not in ['iqr', 'z_score']:
+        print("El método debe ser 'iqr' o 'z_score'.")
+        return {}
+        
+    # Para seleccionar automáticamente solo las columnas numéricas
+    columns_num = df.select_dtypes(include=[np.number]).columns
+    
+    # El diccionario donde guardaremos los resultados finales
+    outliers_summary = {}
+    
+    # 2. Bucle principal para analizar columna por columna
+    for col in columns_num:
+        # Ignoramos columnas que estén completamente vacías
+        if df[col].dropna().empty:
+            continue
+            
+        # Creamos una serie limpia sin nulos para calcular los límites estadísticos correctamente
+        col_clean = df[col].dropna()
+        outlier_mask = pd.Series(False, index=df.index)
+        
+        # MÉTODO 1: RANGO INTERCUARTÍLICO (IQR)
+        if method == 'iqr':
+            k = threshold if threshold is not None else 1.5
+            q1 = col_clean.quantile(0.25)
+            q3 = col_clean.quantile(0.75)
+            iqr = q3 - q1
+            
+            lower_bound = q1 - (k * iqr)
+            upper_bound = q3 + (k * iqr)
+            
+            # Identificamos qué índices del DataFrame original caen fuera de los límites
+            outlier_mask = (df[col] < lower_bound) | (df[col] > upper_bound)
+            
+        # MÉTODO 2: Z-SCORE (PUNTUACIÓN Z)
+        elif method == 'z_score':
+            limit = threshold if threshold is not None else 3.0
+            mean = col_clean.mean()
+            std = col_clean.std()
+            
+            # Si la desviación estándar es 0 (columna constante), no hay outliers posibles
+            if std == 0:
+                continue
+                
+            # Calculamos el Z-score absoluto para cada valor
+            z_scores = (df[col] - mean) / std
+            outlier_mask = z_scores.abs() > limit
+            
+        # 3. Recopilación de resultados de la columna actual
+        # Extraemos los índices reales del DataFrame donde se activa la máscara de outlier
+        detected_indices = df.index[outlier_mask].tolist()
+        count = len(detected_indices)
+        percentage = round((count / len(df)) * 100, 2)
+        
+        # Guardamos en el diccionario estructurado
+        outliers_summary[col] = {
+            'count': count,
+            'percentage': percentage,
+            'indices': detected_indices
+        }
+        
+    return outliers_summary
