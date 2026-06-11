@@ -22,7 +22,8 @@ from toolbox_ml.eda.core import (
     get_features_num_regression,
     plot_features_num_regression,
     get_features_cat_regression,
-    plot_features_cat_regression
+    plot_features_cat_regression,
+    detect_outliers,  # <-- Nueva función Bonus 1
 )
 
 # Definimoas qué funciones se exportan públicamente
@@ -32,7 +33,8 @@ __all__ = [
     "get_features_num_regression",
     "plot_features_num_regression",
     "get_features_cat_regression",
-    "plot_features_cat_regression"
+    "plot_features_cat_regression",
+    "detect_outliers" # <-- Nueva
 ]
 
 # Con este archivo llamaremos a las funciones en nuestro notebook demostración.

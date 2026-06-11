@@ -411,3 +411,89 @@ def plot_features_cat_regression(
         plt.show()
 
     return seleccionadas
+
+# FUNCIÓN 'DETECT_OUTLIERS' BONUS OPCIONAL Nº1 
+
+def detect_outliers(df: pd.DataFrame, method: str = 'iqr', threshold: float = None) -> dict:
+    """
+    Detecta valores atípicos (outliers) en las columnas numéricas de un DataFrame.
+    
+    Argumentos:
+        df (pd.DataFrame): El DataFrame que contiene los datos a analizar.
+        method (str): El método de detección; puede ser 'iqr' (Rango Intercuartílico) 
+                      o 'z_score' (Puntuación Z). Por defecto es 'iqr'.
+        threshold (float, opcional): El umbral para la detección. 
+                                     Si es 'iqr', por defecto multiplica por 1.5.
+                                     Si es 'z_score', por defecto busca valores fuera de +/- 3.0.
+                                     
+    Retorna:
+        dict: Un diccionario donde cada clave es el nombre de la columna numérica y el valor 
+              es otro diccionario con: 'count' (cantidad), 'percentage' (%) e 'indices' (lista de índices).
+    """
+    # 1. Comprobaciones de entrada correctas
+    if not isinstance(df, pd.DataFrame):
+        print("El argumento 'df' debe ser un DataFrame.")
+        return {}
+        
+    method = method.lower()
+    if method not in ['iqr', 'z_score']:
+        print("El método debe ser 'iqr' o 'z_score'.")
+        return {}
+        
+    # Para seleccionar automáticamente solo las columnas numéricas
+    columns_num = df.select_dtypes(include=[np.number]).columns
+    
+    # El diccionario donde guardaremos los resultados finales
+    outliers_summary = {}
+    
+    # 2. Bucle principal para analizar columna por columna
+    for col in columns_num:
+        # Ignoramos columnas que estén completamente vacías
+        if df[col].dropna().empty:
+            continue
+            
+        # Creamos una serie limpia sin nulos para calcular los límites estadísticos correctamente
+        col_clean = df[col].dropna()
+        outlier_mask = pd.Series(False, index=df.index)
+        
+        # MÉTODO 1: RANGO INTERCUARTÍLICO (IQR)
+        if method == 'iqr':
+            k = threshold if threshold is not None else 1.5
+            q1 = col_clean.quantile(0.25)
+            q3 = col_clean.quantile(0.75)
+            iqr = q3 - q1
+            
+            lower_bound = q1 - (k * iqr)
+            upper_bound = q3 + (k * iqr)
+            
+            # Identificamos qué índices del DataFrame original caen fuera de los límites
+            outlier_mask = (df[col] < lower_bound) | (df[col] > upper_bound)
+            
+        # MÉTODO 2: Z-SCORE (PUNTUACIÓN Z)
+        elif method == 'z_score':
+            limit = threshold if threshold is not None else 3.0
+            mean = col_clean.mean()
+            std = col_clean.std()
+            
+            # Si la desviación estándar es 0 (columna constante), no hay outliers posibles
+            if std == 0:
+                continue
+                
+            # Calculamos el Z-score absoluto para cada valor
+            z_scores = (df[col] - mean) / std
+            outlier_mask = z_scores.abs() > limit
+            
+        # 3. Recopilación de resultados de la columna actual
+        # Extraemos los índices reales del DataFrame donde se activa la máscara de outlier
+        detected_indices = df.index[outlier_mask].tolist()
+        count = len(detected_indices)
+        percentage = round((count / len(df)) * 100, 2)
+        
+        # Guardamos en el diccionario estructurado
+        outliers_summary[col] = {
+            'count': count,
+            'percentage': percentage,
+            'indices': detected_indices
+        }
+        
+    return outliers_summary
