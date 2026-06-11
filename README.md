@@ -24,18 +24,25 @@ pip install -e .
 ## Estructura del repositorio
 ```
 TC-ToolBox/
+├── README.md                  # Descripción del proyecto
 ├── .venv/                     # Entorno virtual de trabajo
 ├── notebooks/                 # Espacio para pruebas y análisis
 │   └── demo.ipynb             # El cuaderno de demostración
 ├── tests
-    ├── __init__.py            # Conmutador central y gestor de accesos
-    └── test_core.py           # Tests unitarios
+│    ├── __init__.py           # Mostrador de tests
+│    └── test_core.py          # Tests unitarios
 ├── toolbox_ml/                # El paquete instalable del proyecto
 │   ├── __init__.py            # El conmutador central y gestor de accesos
+│   ├── data/                  # Archivos para el proyecto
 │   └── eda/                   # Módulo de Análisis Exploratorio
+│       ├── __init__.py        # Mostrador de EDA
 │       └── core.py            # Archivo único con todas las funciones unificadas
+├── .github/
+│    └── workflows/
+│        └── tests.yml         # Configuración pytests automáticos   
 ├── requirements.txt           # Listado oficial de dependencias
-└── setup.py                   # Configuradores de instalación
+├── setup.py                   # Configuradores de instalación
+└── __init__.py                # El conmutador central y gestor de accesos               
 ```
 
 ## Funciones Principales (`toolbox_ml.eda.core`)
@@ -67,5 +74,5 @@ pytest tests/ -v
 El desarrollo del paquete y las tareas de integración se distribuyeron bajo la metodología Scrum de la siguiente manera:
 
 * **María** - *Scrum Master*: Gestión integral del repositorio de GitHub, configuración y control de la protección de la rama `main`, diseño de la arquitectura y estructura inicial del paquete, documentación global (`README.md`), control técnico del entorno virtual y desarrollo del Notebook de Demostración.
-* **Marta** - *Data Engineer / Developer*: Implementación de la lógica del análisis descriptivo de DataFrames (`describe_df`) y del algoritmo para la tipificación automática de variables (`tipifica_variables`) en el archivo `core.py`. Diseño y ejecución de sus respectivos tests unitarios con `pytest`.
-* **Claudia** - *Data Scientist / Developer*: Desarrollo del bloque completo de Feature Selection para regresión. Implementación del filtrado estadístico y visualización tanto de variables numéricas (test de Pearson y pairplots) como categóricas (tests ANOVA / Mann-Whitney U e histogramas de densidad). Diseño y ejecución de sus respectivos tests unitarios.
+* **Marta** - *Data Engineer / Developer 1*: Implementación de la lógica del análisis descriptivo de DataFrames (`describe_df`) y del algoritmo para la tipificación automática de variables (`tipifica_variables`) en el archivo `core.py`. Diseño y ejecución de sus respectivos tests unitarios con `pytest`.
+* **Claudia** - *Data Scientist / Developer 2*: Desarrollo del bloque completo de Feature Selection para regresión. Implementación del filtrado estadístico y visualización tanto de variables numéricas (test de Pearson y pairplots) como categóricas (tests ANOVA / Mann-Whitney U e histogramas de densidad). Diseño y ejecución de sus respectivos tests unitarios.
