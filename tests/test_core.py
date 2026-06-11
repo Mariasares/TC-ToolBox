@@ -240,3 +240,5 @@ def test_plot_cat_caso_error(df_cat):
     """Caso de error: df inválido -> None."""
     assert plot_features_cat_regression("no es df", "precio") is None
     plt.close('all')  # <--- Añado para limpiar la memoria
+
+
