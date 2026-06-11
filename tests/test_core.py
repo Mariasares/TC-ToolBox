@@ -9,7 +9,8 @@ from toolbox_ml.eda.core import (
     get_features_num_regression, 
     plot_features_num_regression, 
     get_features_cat_regression, 
-    plot_features_cat_regression, 
+    plot_features_cat_regression,
+    detect_outliers,
     get_features_cat_classification, 
     get_features_num_classification
 )
@@ -235,7 +236,44 @@ def test_plot_cat_caso_error(df_cat_reg):
 
 # ----------------------------- detect_outliers -----------------------------
 
+def test_detect_outliers_devuelve_diccionario():
+    df = pd.DataFrame({
+        "a": [1, 2, 3, 100],   # outlier 100
+        "b": [10, 10, 10, 10]  # sin outliers
+    })
 
+    resultado = detect_outliers(df)
+
+    # La salida debe ser un diccionario
+    assert isinstance(resultado, dict)
+
+    # Debe contener las columnas numéricas
+    assert set(resultado.keys()) == {"a", "b"}
+
+    # Cada columna debe tener la estructura correcta
+    for info in resultado.values():
+        assert isinstance(info, dict)
+        assert set(info.keys()) == {"count", "percentage", "indices"}
+        assert isinstance(info["count"], int)
+        assert isinstance(info["percentage"], float)
+        assert isinstance(info["indices"], list)
+
+
+def test_detect_outliers_dataframe_vacio():
+    df = pd.DataFrame()  # DataFrame completamente vacío
+
+    resultado = detect_outliers(df)
+
+    assert isinstance(resultado, dict)
+    assert resultado == {}  # no hay columnas numéricas, no hay outliers
+
+
+def test_detect_outliers_devuelve_none_si_df_incorrecto():
+    df_incorrecto = [1, 2, 3]  # no es un DataFrame
+
+    resultado = detect_outliers(df_incorrecto)
+
+    assert resultado == {}  # la función devuelve {} en inputs incorrectos
 
 
 # ----------------------------- Dataset numérico para pruebas de clasificación -----------------------------

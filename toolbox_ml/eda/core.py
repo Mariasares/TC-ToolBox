@@ -117,12 +117,10 @@ def tipifica_variables(df: pd.DataFrame, umbral_categorica: int, umbral_continua
     return resultado
 
 
-
-# ----------------------------------------------------------------------------- #
-#  Helper privado: comprobaciones de entrada comunes a las funciones numéricas.
+# ------------- Helper privado: comprobaciones comunes a las funciones numéricas -----------------------------
 #  Lo separamos para no repetir el mismo bloque de "ifs" en dos funciones.
 #  Devuelve True si todo está bien, o False (e imprime el motivo) si algo falla.
-# ----------------------------------------------------------------------------- #
+
 def _validar_num(df, target_col, umbral_corr, pvalue) -> bool:
     if not isinstance(df, pd.DataFrame):
         print("Error: 'df' debe ser un pandas DataFrame.")
@@ -265,9 +263,7 @@ def plot_features_num_regression(
     return seleccionadas
 
 
-# ----------------------------------------------------------------------------- #
-#  Helper privado: comprobaciones comunes a las funciones categóricas.
-# ----------------------------------------------------------------------------- #
+# ------------- Helper privado: comprobaciones comunes a las funciones categóricas -----------------------------
 
 def _validar_cat(df, target_col, pvalue) -> bool:
     if not isinstance(df, pd.DataFrame):
