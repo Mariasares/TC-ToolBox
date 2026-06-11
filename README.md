@@ -1,3 +1,5 @@
+![Descripción](toolbox_ml/data/imagen_proyecto_toolbox.png)
+
 # Toolbox ML (`toolbox_ml`)
 
 Una librería de Python para automatizar tareas de Análisis Exploratorio de Datos (EDA) y selección de características en proyectos de Machine Learning orientados a regresión.
